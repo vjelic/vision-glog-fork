@@ -8,9 +8,14 @@ export BUILD_TYPE=conda
 setup_env
 export SOURCE_ROOT_DIR="$PWD"
 setup_conda_pytorch_constraint
-setup_conda_cudatoolkit_constraint
-setup_visual_studio_constraint
+if [[ "$CU_VERSION" == rocm* ]]; then
+    setup_conda_rocm_constraint
+    # export ROCM_CHANNEL="-c $fill_in"
+else
+    setup_conda_cudatoolkit_constraint
+    setup_visual_studio_constraint
+    export CUDATOOLKIT_CHANNEL="-c nvidia"
+fi
 setup_junit_results_folder
-export CUDATOOLKIT_CHANNEL="nvidia"
 
-conda build -c $CUDATOOLKIT_CHANNEL $CONDA_CHANNEL_FLAGS --no-anaconda-upload --python "$PYTHON_VERSION" packaging/torchvision
+conda build $CUDATOOLKIT_CHANNEL $ROCM_CHANNEL $CONDA_CHANNEL_FLAGS --no-anaconda-upload --python "$PYTHON_VERSION" packaging/torchvision

@@ -20,6 +20,7 @@ requirements:
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
     {{ environ.get('CONDA_PYTORCH_BUILD_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
+    {{ environ.get('CONDA_ROCM_CONSTRAINT', '') }}
 
   run:
     - python
@@ -32,6 +33,7 @@ requirements:
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
     {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
+    {{ environ.get('CONDA_ROCM_CONSTRAINT', '') }}
 
   {% if build_variant == 'cpu' %}
   run_constrained:
@@ -43,7 +45,11 @@ requirements:
 
 build:
   string: py{{py}}_{{ environ['CU_VERSION'] }}
+  {% if build_variant == 'rocm' %}
+  script: build-vision.sh
+  {% else %}
   script: python setup.py install --single-version-externally-managed --record=record.txt
+  {% endif %}
   script_env:
     - CUDA_HOME
     - FORCE_CUDA

@@ -244,6 +244,9 @@ setup_conda_pytorch_constraint() {
   if [[ "$CU_VERSION" == cpu ]]; then
     export CONDA_PYTORCH_BUILD_CONSTRAINT="- pytorch==$PYTORCH_VERSION${PYTORCH_VERSION_SUFFIX}"
     export CONDA_PYTORCH_CONSTRAINT="- pytorch==$PYTORCH_VERSION"
+  elif [[ "$CU_VERSION" == rocm* ]]; then
+    export CONDA_PYTORCH_BUILD_CONSTRAINT="- pytorch==$PYTORCH_VERSION${PYTORCH_VERSION_SUFFIX} *rocm*"
+    export CONDA_PYTORCH_CONSTRAINT="- pytorch==$PYTORCH_VERSION *rocm*"
   else
     export CONDA_PYTORCH_BUILD_CONSTRAINT="- pytorch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX}"
     export CONDA_PYTORCH_CONSTRAINT="- pytorch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX}"
@@ -279,6 +282,22 @@ setup_conda_cudatoolkit_constraint() {
         ;;
     esac
   fi
+}
+
+setup_conda_rocm_constraint() {
+  export CONDA_BUILD_VARIANT="rocm"
+  case "$CU_VERSION" in
+    rocm54)
+      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.4 # [not osx]"
+      ;;
+    rocm55)
+      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.5 # [not osx]"
+      ;;
+    *)
+      echo "Unrecognized CU_VERSION=$CU_VERSION"
+      exit 1
+      ;;
+  esac
 }
 
 setup_conda_cudatoolkit_plain_constraint() {
