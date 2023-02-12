@@ -1,10 +1,15 @@
 {% set build_variant = environ.get('CONDA_BUILD_VARIANT', 'cpu') %}
+{% set torchvision_rev = environ.get('TORCHVISION_REV', '') %}
 package:
   name: torchvision
   version: "{{ environ.get('BUILD_VERSION') }}"
 
 source:
+{% if build_variant == 'rocm' and torchvision_rev != ''%}
+ url: https://github.com/pytorch/vision/archive/{{ torchvision_rev }}.tar.gz
+{% else %}
  path: "{{ environ.get('SOURCE_ROOT_DIR') }}"
+{% endif %}
 
 requirements:
   build:
@@ -45,17 +50,13 @@ requirements:
 
 build:
   string: py{{py}}_{{ environ['CU_VERSION'] }}
-  {% if build_variant == 'rocm' %}
-  script: build-vision.sh
-  {% else %}
-  script: python setup.py install --single-version-externally-managed --record=record.txt
-  {% endif %}
   script_env:
     - CUDA_HOME
     - FORCE_CUDA
     - BUILD_VERSION
     - TORCH_CUDA_ARCH_LIST
     - MACOSX_DEPLOYMENT_TARGET
+    - CONDA_BUILD_VARIANT
 
 test:
   imports:
