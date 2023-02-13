@@ -23,6 +23,12 @@ requirements:
     - python
     - setuptools
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
+    {% if build_variant == 'rocm' %}
+    - pillow >=5.3.0, !=8.3.*
+    - requests
+    - numpy # [py <= 39]
+    - numpy >=1.21.5 # [py >= 310]
+    {% endif %}
     {{ environ.get('CONDA_PYTORCH_BUILD_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
     {{ environ.get('CONDA_ROCM_CONSTRAINT', '') }}
