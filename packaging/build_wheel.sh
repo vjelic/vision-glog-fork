@@ -7,7 +7,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export BUILD_TYPE=wheel
 setup_env 0.11.0
 setup_wheel_python
-pip_install numpy pyyaml future ninja
+pip_install numpy==1.23.1 pyyaml future ninja
 pip_install --upgrade setuptools
 setup_pip_pytorch_version
 python setup.py clean
