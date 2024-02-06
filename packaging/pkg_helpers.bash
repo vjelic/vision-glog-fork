@@ -287,17 +287,11 @@ setup_conda_cudatoolkit_constraint() {
 setup_conda_rocm_constraint() {
   export CONDA_BUILD_VARIANT="rocm"
   case "$CU_VERSION" in
-    rocm54)
-      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.4 # [not osx]"
-      ;;
-    rocm55)
-      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.5 # [not osx]"
-      ;;
-    rocm56)
-      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.6 # [not osx]"
-      ;;
     rocm57)
       export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=5.7 # [not osx]"
+      ;;
+    rocm60)
+      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=6.0 # [not osx]"
       ;;
     *)
       echo "Unrecognized CU_VERSION=$CU_VERSION"
