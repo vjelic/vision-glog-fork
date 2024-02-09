@@ -27,8 +27,8 @@ requirements:
     - sympy
     - pillow >=5.3.0, !=8.3.*
     - requests
-    - numpy # [py <= 39]
-    - numpy >=1.21.5 # [py >= 310]
+    - defaults::numpy >=1.11 # [py <= 310]
+    - numpy >=1.23.5 # [py >= 311]
     {% endif %}
     {{ environ.get('CONDA_PYTORCH_BUILD_CONSTRAINT') }}
     {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
