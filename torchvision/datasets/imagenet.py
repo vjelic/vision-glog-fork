@@ -21,10 +21,16 @@ META_FILE = "meta.bin"
 class ImageNet(ImageFolder):
     """`ImageNet <http://image-net.org/>`_ 2012 Classification Dataset.
 
+    .. note::
+        Before using this class, it is required to download ImageNet 2012 dataset from
+        `here <https://image-net.org/challenges/LSVRC/2012/2012-downloads.php>`_ and
+        place the files ``ILSVRC2012_devkit_t12.tar.gz`` and ``ILSVRC2012_img_train.tar``
+        or ``ILSVRC2012_img_val.tar`` based on ``split`` in the root directory.
+
     Args:
         root (string): Root directory of the ImageNet Dataset.
         split (string, optional): The dataset split, supports ``train``, or ``val``.
-        transform (callable, optional): A function/transform that  takes in an PIL image
+        transform (callable, optional): A function/transform that takes in a PIL image
             and returns a transformed version. E.g, ``transforms.RandomCrop``
         target_transform (callable, optional): A function/transform that takes in the
             target and transforms it.
@@ -78,7 +84,7 @@ def load_meta_file(root: str, file: Optional[str] = None) -> Tuple[Dict[str, str
     file = os.path.join(root, file)
 
     if check_integrity(file):
-        return torch.load(file)
+        return torch.load(file, weights_only=True)
     else:
         msg = (
             "The meta file {} is not present in the root directory or is corrupted. "

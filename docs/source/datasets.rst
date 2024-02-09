@@ -1,3 +1,5 @@
+.. _datasets:
+
 Datasets
 ========
 
@@ -52,6 +54,7 @@ Image classification
     GTSRB
     INaturalist
     ImageNet
+    Imagenette
     KMNIST
     LFWPeople
     LSUN
@@ -169,3 +172,12 @@ Base classes for custom datasets
     DatasetFolder
     ImageFolder
     VisionDataset
+
+Transforms v2
+-------------
+
+.. autosummary::
+    :toctree: generated/
+    :template: function.rst
+
+    wrap_dataset_for_transforms_v2

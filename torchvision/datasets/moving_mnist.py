@@ -17,7 +17,7 @@ class MovingMNIST(VisionDataset):
         split_ratio (int, optional): The split ratio of number of frames. If ``split="train"``, the first split
             frames ``data[:, :split_ratio]`` is returned. If ``split="test"``, the last split frames ``data[:, split_ratio:]``
             is returned. If ``split=None``, this parameter is ignored and the all frames data is returned.
-        transform (callable, optional): A function/transform that takes in an torch Tensor
+        transform (callable, optional): A function/transform that takes in a torch Tensor
             and returns a transformed version. E.g, ``transforms.RandomCrop``
         download (bool, optional): If true, downloads the dataset from the internet and
             puts it in root directory. If dataset is already downloaded, it is not
@@ -58,7 +58,7 @@ class MovingMNIST(VisionDataset):
         data = torch.from_numpy(np.load(os.path.join(self._base_folder, self._filename)))
         if self.split == "train":
             data = data[: self.split_ratio]
-        else:
+        elif self.split == "test":
             data = data[self.split_ratio :]
         self.data = data.transpose(0, 1).unsqueeze(2).contiguous()
 

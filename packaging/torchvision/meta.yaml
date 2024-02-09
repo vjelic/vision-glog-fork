@@ -15,9 +15,8 @@ requirements:
   build:
     - {{ compiler('c') }} # [win]
     - libpng
-    - jpeg
-    # NOTE: The only ffmpeg version that we build is actually 4.2
-    - ffmpeg >=4.2  # [not win]
+    - libjpeg-turbo
+    - ffmpeg >=4.2  # [linux]
 
   host:
     - python
@@ -37,11 +36,12 @@ requirements:
 
   run:
     - python
-    - defaults::numpy >=1.11
+    - defaults::numpy >=1.11 # [py <= 310]
+    - numpy >=1.23.5 # [py >= 311]
     - requests
     - libpng
-    - ffmpeg >=4.2  # [not win]
-    - jpeg
+    - ffmpeg >=4.2  # [linux]
+    - libjpeg-turbo
     - pillow >=5.3.0, !=8.3.*
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
     {% if build_variant == 'rocm' %}
@@ -80,7 +80,7 @@ test:
   requires:
     - pytest
     - scipy
-    - jpeg
+    - libjpeg-turbo
     - ca-certificates
 
 
