@@ -59,7 +59,7 @@ if os.getenv("PYTORCH_VERSION"):
 
 requirements = [
     "typing_extensions",
-    "numpy",
+    "numpy<2",
     "requests",
     pytorch_dep,
 ]
