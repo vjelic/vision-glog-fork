@@ -1,5 +1,7 @@
 import os
 from os.path import abspath, expanduser
+from pathlib import Path
+
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import torch
@@ -13,7 +15,7 @@ class WIDERFace(VisionDataset):
     """`WIDERFace <http://shuoyang1213.me/WIDERFACE/>`_ Dataset.
 
     Args:
-        root (string): Root directory where images and annotations are downloaded to.
+        root (str or ``pathlib.Path``): Root directory where images and annotations are downloaded to.
             Expects the following folder structure if download=False:
 
             .. code::
@@ -55,7 +57,7 @@ class WIDERFace(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         split: str = "train",
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
@@ -90,7 +92,7 @@ class WIDERFace(VisionDataset):
         """
 
         # stay consistent with other datasets and return a PIL Image
-        img = Image.open(self.img_info[index]["img_path"])
+        img = Image.open(self.img_info[index]["img_path"])  # type: ignore[arg-type]
 
         if self.transform is not None:
             img = self.transform(img)
@@ -180,7 +182,6 @@ class WIDERFace(VisionDataset):
 
     def download(self) -> None:
         if self._check_integrity():
-            print("Files already downloaded and verified")
             return
 
         # download and extract image data

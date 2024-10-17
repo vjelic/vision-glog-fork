@@ -1,11 +1,11 @@
 import csv
 import os
-import time
 import urllib
 from functools import partial
 from multiprocessing import Pool
 from os import path
-from typing import Any, Callable, Dict, Optional, Tuple
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 from torch import Tensor
 
@@ -15,7 +15,7 @@ from .video_utils import VideoClips
 from .vision import VisionDataset
 
 
-def _dl_wrap(tarpath: str, videopath: str, line: str) -> None:
+def _dl_wrap(tarpath: Union[str, Path], videopath: Union[str, Path], line: str) -> None:
     download_and_extract_archive(line, tarpath, videopath)
 
 
@@ -35,7 +35,7 @@ class Kinetics(VisionDataset):
     frames in a video might be present.
 
     Args:
-        root (string): Root directory of the Kinetics Dataset.
+        root (str or ``pathlib.Path``): Root directory of the Kinetics Dataset.
             Directory should be structured as follows:
             .. code::
 
@@ -90,7 +90,7 @@ class Kinetics(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         frames_per_clip: int,
         num_classes: str = "400",
         split: str = "train",
@@ -120,7 +120,6 @@ class Kinetics(VisionDataset):
         self._legacy = _legacy
 
         if _legacy:
-            print("Using legacy structure")
             self.split_folder = root
             self.split = "unknown"
             output_format = "THWC"
@@ -156,14 +155,8 @@ class Kinetics(VisionDataset):
 
     def download_and_process_videos(self) -> None:
         """Downloads all the videos to the _root_ folder in the expected format."""
-        tic = time.time()
         self._download_videos()
-        toc = time.time()
-        print("Elapsed time for downloading in mins ", (toc - tic) / 60)
         self._make_ds_structure()
-        toc2 = time.time()
-        print("Elapsed time for processing in mins ", (toc2 - toc) / 60)
-        print("Elapsed time overall in mins ", (toc2 - tic) / 60)
 
     def _download_videos(self) -> None:
         """download tarballs containing the video to "tars" folder and extract them into the _split_ folder where

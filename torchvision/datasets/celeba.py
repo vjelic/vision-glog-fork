@@ -1,6 +1,7 @@
 import csv
 import os
 from collections import namedtuple
+from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Union
 
 import PIL
@@ -16,7 +17,7 @@ class CelebA(VisionDataset):
     """`Large-scale CelebFaces Attributes (CelebA) Dataset <http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html>`_ Dataset.
 
     Args:
-        root (string): Root directory where images are downloaded to.
+        root (str or ``pathlib.Path``): Root directory where images are downloaded to.
         split (string): One of {'train', 'valid', 'test', 'all'}.
             Accordingly dataset is selected.
         target_type (string or list, optional): Type of target to use, ``attr``, ``identity``, ``bbox``,
@@ -63,7 +64,7 @@ class CelebA(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         split: str = "train",
         target_type: Union[List[str], str] = "attr",
         transform: Optional[Callable] = None,
@@ -104,7 +105,7 @@ class CelebA(VisionDataset):
         if mask == slice(None):  # if split == "all"
             self.filename = splits.index
         else:
-            self.filename = [splits.index[i] for i in torch.squeeze(torch.nonzero(mask))]
+            self.filename = [splits.index[i] for i in torch.squeeze(torch.nonzero(mask))]  # type: ignore[arg-type]
         self.identity = identity.data[mask]
         self.bbox = bbox.data[mask]
         self.landmarks_align = landmarks_align.data[mask]
@@ -147,7 +148,6 @@ class CelebA(VisionDataset):
 
     def download(self) -> None:
         if self._check_integrity():
-            print("Files already downloaded and verified")
             return
 
         for (file_id, md5, filename) in self.file_list:

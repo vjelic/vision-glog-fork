@@ -116,6 +116,23 @@ def test_draw_boxes():
     assert_equal(img, img_cp)
 
 
+@pytest.mark.parametrize("fill", [True, False])
+def test_draw_boxes_dtypes(fill):
+    img_uint8 = torch.full((3, 100, 100), 255, dtype=torch.uint8)
+    out_uint8 = utils.draw_bounding_boxes(img_uint8, boxes, fill=fill)
+
+    assert img_uint8 is not out_uint8
+    assert out_uint8.dtype == torch.uint8
+
+    img_float = to_dtype(img_uint8, torch.float, scale=True)
+    out_float = utils.draw_bounding_boxes(img_float, boxes, fill=fill)
+
+    assert img_float is not out_float
+    assert out_float.is_floating_point()
+
+    torch.testing.assert_close(out_uint8, to_dtype(out_float, torch.uint8, scale=True), rtol=0, atol=1)
+
+
 @pytest.mark.parametrize("colors", [None, ["red", "blue", "#FF00FF", (1, 34, 122)], "red", "#FF00FF", (1, 34, 122)])
 def test_draw_boxes_colors(colors):
     img = torch.full((3, 100, 100), 0, dtype=torch.uint8)
@@ -152,7 +169,6 @@ def test_draw_boxes_grayscale():
 
 def test_draw_invalid_boxes():
     img_tp = ((1, 1, 1), (1, 2, 3))
-    img_wrong1 = torch.full((3, 5, 5), 255, dtype=torch.float)
     img_wrong2 = torch.full((1, 3, 5, 5), 255, dtype=torch.uint8)
     img_correct = torch.zeros((3, 10, 10), dtype=torch.uint8)
     boxes = torch.tensor([[0, 0, 20, 20], [0, 0, 0, 0], [10, 15, 30, 35], [23, 35, 93, 95]], dtype=torch.float)
@@ -162,8 +178,6 @@ def test_draw_invalid_boxes():
 
     with pytest.raises(TypeError, match="Tensor expected"):
         utils.draw_bounding_boxes(img_tp, boxes)
-    with pytest.raises(ValueError, match="Tensor uint8 expected"):
-        utils.draw_bounding_boxes(img_wrong1, boxes)
     with pytest.raises(ValueError, match="Pass individual images, not batches"):
         utils.draw_bounding_boxes(img_wrong2, boxes)
     with pytest.raises(ValueError, match="Only grayscale and RGB images are supported"):
@@ -341,6 +355,13 @@ def test_draw_keypoints_vanilla():
     assert_equal(img, img_cp)
 
 
+def test_draw_keypoins_K_equals_one():
+    # Non-regression test for https://github.com/pytorch/vision/pull/8439
+    img = torch.full((3, 100, 100), 0, dtype=torch.uint8)
+    keypoints = torch.tensor([[[10, 10]]], dtype=torch.float)
+    utils.draw_keypoints(img, keypoints)
+
+
 @pytest.mark.parametrize("colors", ["red", "#FF00FF", (1, 34, 122)])
 def test_draw_keypoints_colored(colors):
     # Keypoints is declared on top as global variable
@@ -430,6 +451,22 @@ def test_draw_keypoints_visibility_default():
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "fakedata", "draw_keypoint_vanilla.png")
     expected = torch.as_tensor(np.array(Image.open(path))).permute(2, 0, 1)
     assert_equal(result, expected)
+
+
+def test_draw_keypoints_dtypes():
+    image_uint8 = torch.randint(0, 256, size=(3, 100, 100), dtype=torch.uint8)
+    image_float = to_dtype(image_uint8, torch.float, scale=True)
+
+    out_uint8 = utils.draw_keypoints(image_uint8, keypoints)
+    out_float = utils.draw_keypoints(image_float, keypoints)
+
+    assert out_uint8.dtype == torch.uint8
+    assert out_uint8 is not image_uint8
+
+    assert out_float.is_floating_point()
+    assert out_float is not image_float
+
+    torch.testing.assert_close(out_uint8, to_dtype(out_float, torch.uint8, scale=True), rtol=0, atol=1)
 
 
 def test_draw_keypoints_errors():

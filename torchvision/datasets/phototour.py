@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -24,7 +25,7 @@ class PhotoTour(VisionDataset):
 
 
     Args:
-        root (string): Root directory where images are.
+        root (str or ``pathlib.Path``): Root directory where images are.
         name (string): Name of the dataset to load.
         transform (callable, optional): A function/transform that takes in a PIL image
             and returns a transformed version.
@@ -87,7 +88,12 @@ class PhotoTour(VisionDataset):
     matches_files = "m50_100000_100000_0.txt"
 
     def __init__(
-        self, root: str, name: str, train: bool = True, transform: Optional[Callable] = None, download: bool = False
+        self,
+        root: Union[str, Path],
+        name: str,
+        train: bool = True,
+        transform: Optional[Callable] = None,
+        download: bool = False,
     ) -> None:
         super().__init__(root, transform=transform)
         self.name = name
@@ -139,7 +145,6 @@ class PhotoTour(VisionDataset):
 
     def download(self) -> None:
         if self._check_datafile_exists():
-            print(f"# Found cached data {self.data_file}")
             return
 
         if not self._check_downloaded():
@@ -151,8 +156,6 @@ class PhotoTour(VisionDataset):
 
             download_url(url, self.root, filename, md5)
 
-            print(f"# Extracting data {self.data_down}\n")
-
             import zipfile
 
             with zipfile.ZipFile(fpath, "r") as z:
@@ -162,7 +165,6 @@ class PhotoTour(VisionDataset):
 
     def cache(self) -> None:
         # process and save as torch files
-        print(f"# Caching data {self.data_file}")
 
         dataset = (
             read_image_file(self.data_dir, self.image_ext, self.lens[self.name]),

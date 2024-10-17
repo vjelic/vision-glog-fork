@@ -12,7 +12,7 @@ import urllib
 import urllib.error
 import urllib.request
 import zipfile
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Tuple, TypeVar, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -24,24 +24,12 @@ from .._internally_replaced_utils import _download_file_from_remote_location, _i
 USER_AGENT = "pytorch/vision"
 
 
-def _save_response_content(
-    content: Iterator[bytes],
-    destination: Union[str, pathlib.Path],
-    length: Optional[int] = None,
-) -> None:
-    with open(destination, "wb") as fh, tqdm(total=length) as pbar:
-        for chunk in content:
-            # filter out keep-alive new chunks
-            if not chunk:
-                continue
-
-            fh.write(chunk)
-            pbar.update(len(chunk))
-
-
 def _urlretrieve(url: str, filename: Union[str, pathlib.Path], chunk_size: int = 1024 * 32) -> None:
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": USER_AGENT})) as response:
-        _save_response_content(iter(lambda: response.read(chunk_size), b""), filename, length=response.length)
+        with open(filename, "wb") as fh, tqdm(total=response.length, unit="B", unit_scale=True) as pbar:
+            while chunk := response.read(chunk_size):
+                fh.write(chunk)
+                pbar.update(len(chunk))
 
 
 def calculate_md5(fpath: Union[str, pathlib.Path], chunk_size: int = 1024 * 1024) -> str:
@@ -124,7 +112,6 @@ def download_url(
 
     # check if file is already present locally
     if check_integrity(fpath, md5):
-        print("Using downloaded and verified file: " + fpath)
         return
 
     if _is_remote_location_available():
@@ -140,12 +127,10 @@ def download_url(
 
         # download the file
         try:
-            print("Downloading " + url + " to " + fpath)
             _urlretrieve(url, fpath)
         except (urllib.error.URLError, OSError) as e:  # type: ignore[attr-defined]
             if url[:5] == "https":
                 url = url.replace("https:", "http:")
-                print("Failed download. Trying https -> http instead. Downloading " + url + " to " + fpath)
                 _urlretrieve(url, fpath)
             else:
                 raise e
@@ -216,7 +201,6 @@ def download_file_from_google_drive(
     os.makedirs(root, exist_ok=True)
 
     if check_integrity(fpath, md5):
-        print(f"Using downloaded {'and verified ' if md5 else ''}file: {fpath}")
         return
 
     gdown.download(id=file_id, output=fpath, quiet=False, user_agent=USER_AGENT)
@@ -407,7 +391,6 @@ def download_and_extract_archive(
     download_url(url, download_root, filename, md5)
 
     archive = os.path.join(download_root, filename)
-    print(f"Extracting {archive} to {extract_root}")
     extract_archive(archive, extract_root, remove_finished)
 
 
