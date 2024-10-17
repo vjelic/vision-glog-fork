@@ -296,6 +296,9 @@ setup_conda_rocm_constraint() {
     rocm61)
       export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=6.1 # [not osx]"
       ;;
+    rocm62)
+      export CONDA_ROCM_CONSTRAINT="- pytorch-rocm=6.2 # [not osx]"
+      ;;
     *)
       echo "Unrecognized CU_VERSION=$CU_VERSION"
       exit 1
