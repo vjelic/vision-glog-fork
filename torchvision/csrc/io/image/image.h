@@ -8,4 +8,10 @@
 #include "cpu/encode_jpeg.h"
 #include "cpu/encode_png.h"
 #include "cpu/read_write_file.h"
+
+#ifdef WITH_HIP
+#include "hip/encode_decode_jpegs_hip.h"
+#endif
+#ifdef WITH_CUDA
 #include "cuda/encode_decode_jpegs_cuda.h"
+#endif

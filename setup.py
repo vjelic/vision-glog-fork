@@ -161,10 +161,16 @@ def make_C_extension():
     if IS_ROCM:
         from torch.utils.hipify import hipify_python
 
+        if sys.platform == "win32":
+            ignores = "torchvision/csrc/image/cpu/*"
+        else:
+            ignores = ""
+
         hipify_python.hipify(
             project_directory=str(ROOT_DIR),
             output_directory=str(ROOT_DIR),
             includes="torchvision/csrc/ops/cuda/*",
+            ignores=ignores,
             show_detailed=True,
             is_pytorch_extension=True,
         )
@@ -281,8 +287,6 @@ def make_image_extension():
 
     if IS_ROCM:
         sources += list(image_dir.glob("hip/*.cpp"))
-        # we need to exclude this in favor of the hipified source
-        sources.remove(image_dir / "image.cpp")
     else:
         sources += list(image_dir.glob("cuda/*.cpp"))
 
