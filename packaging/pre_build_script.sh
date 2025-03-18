@@ -33,7 +33,7 @@ else
   fi
 
   yum install -y libjpeg-turbo-devel libwebp-devel freetype gnutls
-  pip install auditwheel
+  pip install "auditwheel<6.3.0"
 fi
 
 pip install numpy pyyaml future ninja
