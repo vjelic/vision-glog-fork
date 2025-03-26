@@ -47,4 +47,6 @@ else
 fi
 
 pip install numpy pyyaml future ninja
-pip install --upgrade setuptools
+# Pin setuptools as in upstream https://github.com/pytorch/vision/blob/4cbf9f333835f48da4d467eb9ad92a2fdfec2caf/packaging/pre_build_script.sh#L43
+# Also helps avoid build error "TypeError: Command.__init__() got an unexpected keyword argument 'no_python_abi_suffix'" with latest setuptools
+pip install --upgrade setuptools==72.1.0
